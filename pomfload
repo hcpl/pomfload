@@ -1,0 +1,13 @@
+#! /bin/sh
+
+
+if [ $# -lt 1 ]; then
+    echo "Usage: $(basename $0) FILE..."
+    exit 1
+fi
+
+
+FILES_POST="$(printf -- '-F "files[]=@%s" ' "$@" | head -c -1)"
+UPLOAD_SITE=https://comfy.moe/upload.php
+
+eval "curl -fsSL ${FILES_POST} \"${UPLOAD_SITE}\" | jq -c -r .files[].url"
