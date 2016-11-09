@@ -15,9 +15,13 @@ Requirements
 ------------
 
 * POSIX-compatible shell
-* ``curl``
-* ``jq``
+* |curl|_
+* |jq|_
 
+.. |curl| replace:: ``curl``
+.. _curl: http://curl.haxx.se/
+.. |jq| replace:: ``jq``
+.. _jq: http://stedolan.github.io/jq/
 
 Credits
 -------
