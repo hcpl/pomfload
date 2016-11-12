@@ -11,7 +11,7 @@ Options:
 Supported sites:
   * aww.moe (alias: aww)
   * catbox.moe (alias: catbox)
-  * comfy.moe (alias: comfy) (default)
+  * comfy.moe (alias: comfy)
   * desu.sh (alias: desu)
   * pomf.cat
 EOF

@@ -12,11 +12,11 @@ Options:
   -s SITE           Specify the site name to upload (default: comfy.moe)
 
 Supported sites:
-  * aww.moe (alias: aww)
-  * catbox.moe (alias: catbox)
-  * comfy.moe (alias: comfy) (default)
-  * desu.sh (alias: desu)
-  * pomf.cat
+EOF_
+
+cat sites.json | jq -c -r "$(cat sites_to_help_text.jq)"
+
+cat <<'EOF_'
 EOF
     exit 0
 }
