@@ -1,5 +1,8 @@
 #! /bin/sh
 
+cat <<'EOF_'
+#! /bin/sh
+
 
 print_usage_exit() {
     echo "Usage: $(basename $0) [-s SITE] FILE..."
@@ -63,37 +66,11 @@ fi
 
 
 SITES_JSON=$(cat <<'EOF'
-{
-    "aww.moe": {
-        "aliases": ["aww"],
-        "upload": "https://aww.moe/upload.php",
-        "download": "https://aww.moe/$result"
-    },
-    "catbox.moe": {
-        "aliases": ["catbox"],
-        "file_form_name": "fileToUpload",
-        "headers": {
-            "reqtype": "fileupload"
-        },
-        "upload": "https://catbox.moe/user/api.php",
-        "download": "$result",
-        "response": "$url"
-    },
-    "comfy.moe": {
-        "aliases": ["comfy"],
-        "upload": "https://comfy.moe/upload.php",
-        "download": "$result"
-    },
-    "desu.sh": {
-        "aliases": ["desu"],
-        "upload": "https://desu.sh/upload.php",
-        "download": "https://desu.sh/$result"
-    },
-    "pomf.cat": {
-        "upload": "https://pomf.cat/upload.php",
-        "download": "https://a.pomf.cat/$result"
-    }
-}
+EOF_
+
+cat sites.json
+
+cat <<'EOF_'
 EOF
 )
 
@@ -118,3 +95,4 @@ FORM_HEADERS="$(printf -- "-F '${FILE_FORM_NAME}=@%s' " "$@" | head -c -1)"
     FORM_HEADERS="${FORM_HEADERS} $(printf -- "-F '%s' " "${ADDITIONAL_FORM_HEADERS}" | head -c -1)"
 
 eval "curl -fsSL ${FORM_HEADERS} '${UPLOAD_URL}' | ${HANDLE_RESPONSE}"
+EOF_
