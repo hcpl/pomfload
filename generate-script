@@ -4,8 +4,25 @@ cat <<'EOF_'
 #! /bin/sh
 
 
+print_help_exit() {
+cat <<EOF
+Usage: $(basename "$0") [-s SITE] FILE...
+
+Options:
+  -s SITE           Specify the site name to upload (default: comfy.moe)
+
+Supported sites:
+  * aww.moe (alias: aww)
+  * catbox.moe (alias: catbox)
+  * comfy.moe (alias: comfy) (default)
+  * desu.sh (alias: desu)
+  * pomf.cat
+EOF
+    exit 0
+}
+
 print_usage_exit() {
-    echo "Usage: $(basename $0) [-s SITE] FILE..."
+    echo "Usage: $(basename "$0") [-s SITE] FILE..."
     exit 1
 }
 
@@ -43,8 +60,11 @@ get_field_value() {
 DEFAULT_SITE=comfy.moe
 SITE="${DEFAULT_SITE}"
 
-while getopts ':s:' x; do
+while getopts ':hs:' x; do
     case $x in
+        h)
+            print_help_exit
+            ;;
         s)
             SITE="${OPTARG}"
             ;;
