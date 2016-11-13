@@ -1,5 +1,15 @@
 #! /bin/sh
 
+
+exit_no_default() {
+    echo "Please, set the valid default site name in sites.json" >&2
+    exit 1
+}
+
+SITES_TEXT="$(cat sites.json | jq -c -r "$(cat sites_to_help_text.jq)")"
+[ -z "$(echo "${SITES_TEXT}" | grep ' (default)')" ] && exit_no_default
+
+
 cat <<'EOF_'
 #! /bin/sh
 
@@ -14,7 +24,7 @@ Options:
 Supported sites:
 EOF_
 
-cat sites.json | jq -c -r "$(cat sites_to_help_text.jq)"
+echo "${SITES_TEXT}"
 
 cat <<'EOF_'
 EOF
@@ -29,9 +39,9 @@ print_usage_exit() {
 get_site_data() {
     local SITE="$1"
 
-    local site_data="$(echo "${SITES_JSON}" | jq -c -r ".[\"${SITE}\"]")"
+    local site_data="$(echo "${SITES_JSON}" | jq -c -r ".sites[\"${SITE}\"]")"
     [ "${site_data}" = null ] && site_data="$(echo "${SITES_JSON}" |
-        jq -c -r ".[]|select(.aliases)|select(.aliases[]|.==\"${SITE}\")")"
+        jq -c -r ".sites[]|select(.aliases)|select(.aliases[]|.==\"${SITE}\")")"
 
     echo "${site_data}"
 }
@@ -57,7 +67,17 @@ get_field_value() {
 }
 
 
-DEFAULT_SITE=comfy.moe
+SITES_JSON=$(cat <<'EOF'
+EOF_
+
+cat sites.json
+
+cat <<'EOF_'
+EOF
+)
+
+
+DEFAULT_SITE="$(echo "${SITES_JSON}" | jq -c -r '.default')"
 SITE="${DEFAULT_SITE}"
 
 while getopts ':hs:' x; do
@@ -83,16 +103,6 @@ shift $((OPTIND-1))
 if [ $# -lt 1 ]; then
     print_usage_exit
 fi
-
-
-SITES_JSON=$(cat <<'EOF'
-EOF_
-
-cat sites.json
-
-cat <<'EOF_'
-EOF
-)
 
 
 SITE_DATA="$(get_site_data "${SITE}" "${DEFAULT_SITE}")"

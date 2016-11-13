@@ -16,7 +16,7 @@ Usage
     Supported sites:
       * aww.moe (alias: aww)
       * catbox.moe (alias: catbox)
-      * comfy.moe (alias: comfy)
+      * comfy.moe (alias: comfy) (default)
       * desu.sh (alias: desu)
       * pomf.cat
 

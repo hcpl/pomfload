@@ -1,31 +1,34 @@
 {
-    "aww.moe": {
-        "aliases": ["aww"],
-        "upload": "https://aww.moe/upload.php",
-        "download": "https://aww.moe/$result"
-    },
-    "catbox.moe": {
-        "aliases": ["catbox"],
-        "file_form_name": "fileToUpload",
-        "headers": {
-            "reqtype": "fileupload"
+    "default": "comfy.moe",
+    "sites": {
+        "aww.moe": {
+            "aliases": ["aww"],
+            "upload": "https://aww.moe/upload.php",
+            "download": "https://aww.moe/$result"
         },
-        "upload": "https://catbox.moe/user/api.php",
-        "download": "$result",
-        "response": "$url"
-    },
-    "comfy.moe": {
-        "aliases": ["comfy"],
-        "upload": "https://comfy.moe/upload.php",
-        "download": "$result"
-    },
-    "desu.sh": {
-        "aliases": ["desu"],
-        "upload": "https://desu.sh/upload.php",
-        "download": "https://desu.sh/$result"
-    },
-    "pomf.cat": {
-        "upload": "https://pomf.cat/upload.php",
-        "download": "https://a.pomf.cat/$result"
+        "catbox.moe": {
+            "aliases": ["catbox"],
+            "file_form_name": "fileToUpload",
+            "headers": {
+                "reqtype": "fileupload"
+            },
+            "upload": "https://catbox.moe/user/api.php",
+            "download": "$result",
+            "response": "$url"
+        },
+        "comfy.moe": {
+            "aliases": ["comfy"],
+            "upload": "https://comfy.moe/upload.php",
+            "download": "$result"
+        },
+        "desu.sh": {
+            "aliases": ["desu"],
+            "upload": "https://desu.sh/upload.php",
+            "download": "https://desu.sh/$result"
+        },
+        "pomf.cat": {
+            "upload": "https://pomf.cat/upload.php",
+            "download": "https://a.pomf.cat/$result"
+        }
     }
 }

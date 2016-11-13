@@ -1,5 +1,15 @@
 #! /bin/sh
 
+
+exit_no_default() {
+    echo "Please, set the valid default site name in sites.json" >&2
+    exit 1
+}
+
+SITES_TEXT="$(cat sites.json | jq -c -r "$(cat sites_to_help_text.jq)" | sed 's/^/    /')"
+[ -z "$(echo "${SITES_TEXT}" | grep ' (default)')" ] && exit_no_default
+
+
 cat <<'EOF_'
 ========
 pomfload
@@ -19,7 +29,7 @@ Usage
     Supported sites:
 EOF_
 
-cat sites.json | jq -c -r "$(cat sites_to_help_text.jq)" | sed 's/^/    /'
+echo "${SITES_TEXT}"
 
 cat <<'EOF_'
 

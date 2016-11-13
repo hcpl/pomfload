@@ -11,7 +11,7 @@ Options:
 Supported sites:
   * aww.moe (alias: aww)
   * catbox.moe (alias: catbox)
-  * comfy.moe (alias: comfy)
+  * comfy.moe (alias: comfy) (default)
   * desu.sh (alias: desu)
   * pomf.cat
 EOF
@@ -26,9 +26,9 @@ print_usage_exit() {
 get_site_data() {
     local SITE="$1"
 
-    local site_data="$(echo "${SITES_JSON}" | jq -c -r ".[\"${SITE}\"]")"
+    local site_data="$(echo "${SITES_JSON}" | jq -c -r ".sites[\"${SITE}\"]")"
     [ "${site_data}" = null ] && site_data="$(echo "${SITES_JSON}" |
-        jq -c -r ".[]|select(.aliases)|select(.aliases[]|.==\"${SITE}\")")"
+        jq -c -r ".sites[]|select(.aliases)|select(.aliases[]|.==\"${SITE}\")")"
 
     echo "${site_data}"
 }
@@ -54,7 +54,46 @@ get_field_value() {
 }
 
 
-DEFAULT_SITE=comfy.moe
+SITES_JSON=$(cat <<'EOF'
+{
+    "default": "comfy.moe",
+    "sites": {
+        "aww.moe": {
+            "aliases": ["aww"],
+            "upload": "https://aww.moe/upload.php",
+            "download": "https://aww.moe/$result"
+        },
+        "catbox.moe": {
+            "aliases": ["catbox"],
+            "file_form_name": "fileToUpload",
+            "headers": {
+                "reqtype": "fileupload"
+            },
+            "upload": "https://catbox.moe/user/api.php",
+            "download": "$result",
+            "response": "$url"
+        },
+        "comfy.moe": {
+            "aliases": ["comfy"],
+            "upload": "https://comfy.moe/upload.php",
+            "download": "$result"
+        },
+        "desu.sh": {
+            "aliases": ["desu"],
+            "upload": "https://desu.sh/upload.php",
+            "download": "https://desu.sh/$result"
+        },
+        "pomf.cat": {
+            "upload": "https://pomf.cat/upload.php",
+            "download": "https://a.pomf.cat/$result"
+        }
+    }
+}
+EOF
+)
+
+
+DEFAULT_SITE="$(echo "${SITES_JSON}" | jq -c -r '.default')"
 SITE="${DEFAULT_SITE}"
 
 while getopts ':hs:' x; do
@@ -80,42 +119,6 @@ shift $((OPTIND-1))
 if [ $# -lt 1 ]; then
     print_usage_exit
 fi
-
-
-SITES_JSON=$(cat <<'EOF'
-{
-    "aww.moe": {
-        "aliases": ["aww"],
-        "upload": "https://aww.moe/upload.php",
-        "download": "https://aww.moe/$result"
-    },
-    "catbox.moe": {
-        "aliases": ["catbox"],
-        "file_form_name": "fileToUpload",
-        "headers": {
-            "reqtype": "fileupload"
-        },
-        "upload": "https://catbox.moe/user/api.php",
-        "download": "$result",
-        "response": "$url"
-    },
-    "comfy.moe": {
-        "aliases": ["comfy"],
-        "upload": "https://comfy.moe/upload.php",
-        "download": "$result"
-    },
-    "desu.sh": {
-        "aliases": ["desu"],
-        "upload": "https://desu.sh/upload.php",
-        "download": "https://desu.sh/$result"
-    },
-    "pomf.cat": {
-        "upload": "https://pomf.cat/upload.php",
-        "download": "https://a.pomf.cat/$result"
-    }
-}
-EOF
-)
 
 
 SITE_DATA="$(get_site_data "${SITE}" "${DEFAULT_SITE}")"
