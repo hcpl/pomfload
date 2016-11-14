@@ -36,15 +36,13 @@ install:
   - cp stack_tmp/*/stack "$HOME/.local/bin/"
   - which stack
   - stack --version
+
+  - stack update
+  - stack setup
   - stack path
   - test "$(stack path --stack-root)" = "$HOME/.stack"
 
-  - git clone --depth=10 https://github.com/koalaman/shellcheck.git
-  - cd shellcheck
-  - stack update
-  - stack setup
-  - stack install
-  - cd ..
+  - stack install ShellCheck
   - which shellcheck
   - shellcheck --version
 
