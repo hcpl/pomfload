@@ -36,16 +36,6 @@ get_site_data() {
     echo "${site_data}"
 }
 
-get_site_data_default() {
-    local SITE="$1"
-    local DEFAULT_SITE="$2"
-
-    local site_data="$(find_site_data "${SITENAME}")"
-    [ "${site_data}" = null ] && site_data="$(find_site_data "${DEFAULT_SITENAME}")"
-
-    echo "${site_data}"
-}
-
 get_field_value() {
     local FIELDNAME="$1"
     local DEFAULT_VALUE="$2"
@@ -134,7 +124,7 @@ if [ $# -lt 1 ]; then
 fi
 
 
-SITE_DATA="$(get_site_data "${SITE}" "${DEFAULT_SITE}")"
+SITE_DATA="$(get_site_data "${SITE}")"
 
 UPLOAD_URL="$(get_field_value upload)"
 DOWNLOAD_URL="$(get_field_value download)"
