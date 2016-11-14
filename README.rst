@@ -12,6 +12,9 @@ Usage
 
     Options:
       -s SITE           Specify the site name to upload (default: comfy.moe)
+      -u                Output URL
+      -f                Output filename only
+      -p                Output the same way as the server responses
 
     Supported sites:
       * aww.moe (alias: aww)
