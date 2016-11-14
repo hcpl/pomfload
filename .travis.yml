@@ -4,9 +4,14 @@ sudo: false
 env:
   - SCRIPTS='generate-script generate-readme pomfload'
 
+cache:
+  directories:
+    - $HOME/.stack
+
 addons:
   apt:
     packages:
+      # For ``stack`` usage
       - g++
       - gcc
       - libc6-dev
@@ -15,9 +20,9 @@ addons:
       - make
       - xz-utils
       - zlib1g-dev
-      - git
       - gnupg
 
+      # For our purposes
       - devscripts
       - jq
 
@@ -31,6 +36,8 @@ install:
   - cp stack_tmp/*/stack "$HOME/.local/bin/"
   - which stack
   - stack --version
+  - stack path
+  - test "$(stack path --stack-root)" = "$HOME/.stack"
 
   - git clone --depth=10 https://github.com/koalaman/shellcheck.git
   - cd shellcheck
