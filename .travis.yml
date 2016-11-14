@@ -6,21 +6,27 @@ env:
 
 addons:
   apt:
-    sources:
-      - fpcomplete-precise
     packages:
-      - stack
       - devscripts
       - jq
 
 install:
+  - mkdir -p "$HOME/.local/bin"
+  - export PATH="$HOME/.local/bin:$PATH"
+
+  - mkdir stack_tmp
+  - wget https://www.stackage.org/stack/linux-x86_64 -O stack.tar.gz
+  - tar xzf stack.tar.gz -C stack_tmp
+  - cp stack_tmp/*/stack "$HOME/.local/bin/"
+  - which stack
+  - stack --version
+
   - git clone https://github.com/koalaman/shellcheck.git
   - cd shellcheck
   - stack update
   - stack setup
   - stack install
   - cd ..
-  - export PATH="$HOME/.local/bin:$PATH"
   - which shellcheck
   - shellcheck --version
 
