@@ -16,9 +16,6 @@ pomfload
 ========
 
 
-Usage
------
-
 .. code-block::
 
     Usage: pomfload [-s SITE] FILE...
@@ -74,7 +71,7 @@ How to Contribute
 Notes for ``sites.json``:
 
 * Give some reasonable aliases (often one alias is sufficient).
-* And make sure it can actually download (of course).
+* And make sure it can actually download (of course :) ).
 
 Patches, suggestions and comments are welcome!
 
