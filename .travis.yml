@@ -7,6 +7,17 @@ env:
 addons:
   apt:
     packages:
+      - g++
+      - gcc
+      - libc6-dev
+      - libffi-dev
+      - libgmp-dev
+      - make
+      - xz-utils
+      - zlib1g-dev
+      - git
+      - gnupg
+
       - devscripts
       - jq
 
@@ -21,7 +32,7 @@ install:
   - which stack
   - stack --version
 
-  - git clone https://github.com/koalaman/shellcheck.git
+  - git clone --depth=10 https://github.com/koalaman/shellcheck.git
   - cd shellcheck
   - stack update
   - stack setup
