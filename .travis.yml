@@ -7,9 +7,19 @@ env:
 addons:
   apt:
     packages:
+      - cabal-install
       - devscripts
       - shellcheck
       - jq
+
+install:
+  - cabal update
+  - git clone https://github.com/koalaman/shellcheck.git
+  - cd shellcheck
+  - cabal install
+  - cd ..
+  - export PATH="$HOME/.cabal/bin:$PATH"
+  - which shellcheck
 
 script:
   - checkbashisms -xp ${SCRIPTS}
