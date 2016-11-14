@@ -9,7 +9,6 @@ addons:
     packages:
       - cabal-install
       - devscripts
-      - shellcheck
       - jq
 
 install:
