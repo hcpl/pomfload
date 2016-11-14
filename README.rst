@@ -2,6 +2,8 @@
 pomfload
 ========
 
+.. image:: https://travis-ci.org/hcpl/pomfload.svg
+    :target: https://travis-ci.org/hcpl/pomfload
 
 .. code-block::
 
