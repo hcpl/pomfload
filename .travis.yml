@@ -1,0 +1,20 @@
+language: sh
+sudo: false
+
+env:
+  - SCRIPTS='generate-script generate-readme pomfload'
+
+addons:
+  apt:
+    packages:
+      - devscripts
+      - shellcheck
+      - jq
+
+script:
+  - checkbashisms -xp ${SCRIPTS}
+  - shellcheck --shell=sh ${SCRIPTS}
+  - jq . sites.json
+  - jq -r "$(cat sites_to_help_text.jq)" sites.json
+  - diff <(./generate-script) pomfload
+  - diff <(./generate-readme) README.rst
