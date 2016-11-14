@@ -6,8 +6,8 @@ exit_no_default() {
     exit 1
 }
 
-SITES_TEXT="$(cat sites.json | jq -c -r "$(cat sites_to_help_text.jq)")"
-[ -z "$(echo "${SITES_TEXT}" | grep ' (default)')" ] && exit_no_default
+SITES_TEXT="$(jq -r "$(cat sites_to_help_text.jq)" sites.json)"
+echo "${SITES_TEXT}" | grep -q ' (default)' || exit_no_default
 
 
 cat <<'EOF_'
@@ -40,23 +40,23 @@ print_usage_exit() {
 }
 
 get_site_data() {
-    local SITE="$1"
+    _SITE_="$1"
 
-    local site_data="$(echo "${SITES_JSON}" | jq -c -r ".sites[\"${SITE}\"]")"
-    [ "${site_data}" = null ] && site_data="$(echo "${SITES_JSON}" |
-        jq -c -r ".sites[]|select(.aliases)|select(.aliases[]|.==\"${SITE}\")")"
+    _site_data_="$(echo "${SITES_JSON}" | jq -r ".sites[\"${_SITE_}\"]")"
+    [ "${_site_data_}" = null ] && _site_data_="$(echo "${SITES_JSON}" |
+        jq -r ".sites[]|select(.aliases)|select(.aliases[]|.==\"${_SITE_}\")")"
 
-    echo "${site_data}"
+    echo "${_site_data_}"
 }
 
 get_field_value() {
-    local FIELDNAME="$1"
-    local DEFAULT_VALUE="$2"
+    _FIELDNAME_="$1"
+    _DEFAULT_VALUE_="$2"
 
-    local field_value="$(echo "${SITE_DATA}" | jq -c -r ."${FIELDNAME}")"
-    [ -n "${DEFAULT_VALUE}" -a "${field_value}" = null ] && field_value="${DEFAULT_VALUE}"
+    _field_value_="$(echo "${SITE_DATA}" | jq -r ."${_FIELDNAME_}")"
+    ([ -n "${_DEFAULT_VALUE_}" ] && [ "${_field_value_}" = null ]) && _field_value_="${_DEFAULT_VALUE_}"
 
-    echo "${field_value}"
+    echo "${_field_value_}"
 }
 
 
@@ -70,7 +70,7 @@ EOF
 )
 
 
-DEFAULT_SITE="$(echo "${SITES_JSON}" | jq -c -r '.default')"
+DEFAULT_SITE="$(echo "${SITES_JSON}" | jq -r '.default')"
 SITE="${DEFAULT_SITE}"
 OUTPUT_TYPE="url"
 
@@ -92,11 +92,11 @@ while getopts ':hs:ufp' x; do
             OUTPUT_TYPE="preserve"
             ;;
         \?)
-            echo "Invalid option: -${OPTARG}" >&2
+            echo -- "Invalid option: -${OPTARG}" >&2
             print_usage_exit
             ;;
-        \:)
-            echo "-${OPTARG} needs an argument" >&2
+        :)
+            echo -- "-${OPTARG} needs an argument" >&2
             print_usage_exit
             ;;
     esac
@@ -113,17 +113,19 @@ SITE_DATA="$(get_site_data "${SITE}")"
 UPLOAD_URL="$(get_field_value upload)"
 DOWNLOAD_URL="$(get_field_value download)"
 FILE_FORM_NAME="$(get_field_value file_form_name 'files[]')"
-RESPONSE_TEMPLATE="$(get_field_value response '$json:files[].url')"
+RESPONSE_TEMPLATE="$(get_field_value response "\$json:files[].url")"
 case "${RESPONSE_TEMPLATE}" in
-    '$url')       HANDLE_RESPONSE='(cat; echo) | head -n 1' ;;  # Checking for eol would make code ugly
-    '$json:'*)    HANDLE_RESPONSE="jq -c -r $(echo "${RESPONSE_TEMPLATE}" | sed 's/^\$json:/./')" ;;
-    *)            echo "Wrong response template value: \"${RESPONSE_TEMPLATE}\"" >&2; exit 1 ;;
+    "\$url")       HANDLE_RESPONSE='(cat; echo) | head -n 1' ;;  # Checking for eol would make code ugly
+    "\$json:"*)    HANDLE_RESPONSE="jq -r $(echo "${RESPONSE_TEMPLATE}" | sed "s/^\$json:/./")" ;;
+    *)             echo "Wrong response template value: \"${RESPONSE_TEMPLATE}\"" >&2; exit 1 ;;
 esac
 
 ADDITIONAL_FORM_HEADERS="$(echo "${SITE_DATA}" \
-    | jq -c -r 'select(.headers)|.headers|to_entries[]|"\(.key)=\(.value)"')"
+    | jq -r 'select(.headers)|.headers|to_entries[]|"\(.key)=\(.value)"')"
 
+# shellcheck disable=SC2039
 FORM_HEADERS="$(printf -- "-F '${FILE_FORM_NAME}=@%s' " "$@" | head -c -1)"
+# shellcheck disable=SC2039
 [ -n "${ADDITIONAL_FORM_HEADERS}" ] && \
     FORM_HEADERS="${FORM_HEADERS} $(printf -- "-F '%s' " "${ADDITIONAL_FORM_HEADERS}" | head -c -1)"
 

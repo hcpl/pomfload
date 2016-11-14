@@ -6,8 +6,8 @@ exit_no_default() {
     exit 1
 }
 
-SITES_TEXT="$(cat sites.json | jq -c -r "$(cat sites_to_help_text.jq)" | sed 's/^/    /')"
-[ -z "$(echo "${SITES_TEXT}" | grep ' (default)')" ] && exit_no_default
+SITES_TEXT="$(jq -r "$(cat sites_to_help_text.jq)" sites.json | sed 's/^/    /')"
+echo "${SITES_TEXT}" | grep -q ' (default)' || exit_no_default
 
 
 cat <<'EOF_'
