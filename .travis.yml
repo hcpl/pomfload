@@ -6,20 +6,23 @@ env:
 
 addons:
   apt:
+    sources:
+      - fpcomplete-precise
     packages:
-      - ghc
-      - cabal-install
+      - stack
       - devscripts
       - jq
 
 install:
-  - cabal update
   - git clone https://github.com/koalaman/shellcheck.git
   - cd shellcheck
-  - cabal install
+  - stack update
+  - stack setup
+  - stack install
   - cd ..
-  - export PATH="$HOME/.cabal/bin:$PATH"
+  - export PATH="$HOME/.local/bin:$PATH"
   - which shellcheck
+  - shellcheck --version
 
 script:
   - checkbashisms -xp ${SCRIPTS}
