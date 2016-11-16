@@ -4,8 +4,11 @@ def join(str):
         (.[0]|tostring;
          . + str + ($item|tostring));
 
+# For jq 1.3 compatibility
+def any:
+    reduce .[] as $item (false; . or $item);
+
 .default as $default
-| {} as $found_default
 | .sites
   | to_entries[]
     | "  * \(.key)" as $result
@@ -21,7 +24,7 @@ def join(str):
        else
            $result
        end) as $result
-    | if .key == $default or ($aliases and ($aliases[]|.==$default)) then
+    | if .key == $default or ($aliases and ($aliases|map(.==$default)|any)) then
           $result + " (default)"
       else
           $result
