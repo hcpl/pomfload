@@ -7,7 +7,7 @@ pomfload
 
 .. code-block::
 
-    Usage: pomfload [-s SITE] FILE...
+    Usage: pomfload [-u|-f|-p] [-s SITE] FILE...
 
     Options:
       -s SITE           Specify the site name to upload (default: comfy.moe)

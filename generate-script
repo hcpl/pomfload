@@ -16,7 +16,7 @@ cat <<'EOF_'
 
 print_help_exit() {
 cat <<EOF
-Usage: $(basename "$0") [-s SITE] FILE...
+Usage: $(basename "$0") [-u|-f|-p] [-s SITE] FILE...
 
 Options:
   -s SITE           Specify the site name to upload (default: comfy.moe)
@@ -35,7 +35,7 @@ EOF
 }
 
 print_usage_exit() {
-    echo "Usage: $(basename "$0") [-s SITE] FILE..."
+    echo "Usage: $(basename "$0") [-u|-f|-p] [-s SITE] FILE..."
     exit 1
 }
 
