@@ -6,11 +6,12 @@ exit_no_default() {
     exit 1
 }
 
+DEFAULT="$(jq -r .default sites.json)"
 SITES_TEXT="$(jq -r "$(cat sites_to_help_text.jq)" sites.json | sed 's/^/    /')"
 echo "${SITES_TEXT}" | grep -q ' (default)' || exit_no_default
 
 
-cat <<'EOF_'
+cat <<EOF_
 ========
 pomfload
 ========
@@ -23,7 +24,7 @@ pomfload
     Usage: pomfload [-u|-f|-p] [-s SITE] FILE...
 
     Options:
-      -s SITE           Specify the site name to upload (default: comfy.moe)
+      -s SITE           Specify the site name to upload (default: ${DEFAULT})
       -u                Output URL
       -f                Output filename only
       -p                Output the same way as the server responses
