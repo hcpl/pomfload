@@ -30,7 +30,7 @@ Requirements
 * Packages wth essential Unix tools, such as |coreutils|_, |sed| or
   their alternatives.
 * |curl|_
-* |jq|_
+* |jq|_ (``pomfload`` is compatible with jq 1.3 and above)
 
 .. |coreutils| replace:: ``coreutils``
 .. _coreutils: https://gnu.org/s/coreutils
@@ -41,15 +41,33 @@ Requirements
 .. _jq: https://stedolan.github.io/jq/
 
 
+Installation
+------------
+
+``pomfload`` is a standalone script, so downloading a single file is
+enough for usage:
+
+.. code-block:: sh
+
+    # Short link
+    curl -o pomfload git.io/vX7Wd
+
+    # Exact location (these two links point to the same file)
+    curl -O https://raw.githubusercontent.com/hcpl/pomfload/master/pomfload
+
+After that give the script execute permissions and place it somewhere
+in your ``$PATH``.
+
+
 Customization
 -------------
 
-If you want to have your set of available sites, you can add or remove
-sites in ``sites.json``, then execute:
+If you want to have your set of available sites, clone the whole repo,
+add or remove sites in ``sites.json`` and then execute:
 
 .. code-block::
 
-    $ ./generate-script > pomfload
+    ./generate-script > pomfload
 
 That's all! *(at least, it should be that easy)*
 
