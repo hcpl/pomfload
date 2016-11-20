@@ -148,15 +148,17 @@ FORM_HEADERS="$(printf -- "-F '${FILE_FORM_NAME}=@%s' " "$@" | head -c -1)"
 # Uses single quotes inside ${FORM_HEADERS} to support filenames containing spaces and
 # a subshell construct (cmd; cmd) in ${HANDLE_RESPONSE}, so we have to eval it
 OUTPUT="$(eval "curl -fsSL ${FORM_HEADERS} '${UPLOAD_URL}' | ${HANDLE_RESPONSE}")"
-case "${OUTPUT_TYPE}" in
-    url)
-        echo "${DOWNLOAD_URL}" | sed "s|\$result|${OUTPUT}|"
-        ;;
-    filename)
-        # Filename must be the last entry in any given URL that points to a file
-        echo "${OUTPUT}" | tr '/' '\n' | tail -n 1
-        ;;
-    preserve)
-        echo "${OUTPUT}"
-        ;;
-esac
+echo "${OUTPUT}" | while read -r line; do
+    case "${OUTPUT_TYPE}" in
+        url)
+            echo "${DOWNLOAD_URL}" | sed "s|\$result|${line}|"
+            ;;
+        filename)
+            # Filename must be the last entry in any given URL that points to a file
+            echo "${line}" | tr '/' '\n' | tail -n 1
+            ;;
+        preserve)
+            echo "${line}"
+            ;;
+    esac
+done
