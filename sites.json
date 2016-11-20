@@ -9,6 +9,7 @@
         "catbox.moe": {
             "aliases": ["catbox"],
             "file_form_name": "fileToUpload",
+            "multiple_files": false,
             "headers": {
                 "reqtype": "fileupload"
             },
