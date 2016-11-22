@@ -9,7 +9,16 @@ def any:
     reduce .[] as $item (false; . or $item);
 
 .default as $default
-| .sites
+| def is_default:
+      if $default|type == "string" then
+          . == $default
+      elif $default|type == "array" then
+          . as $query
+          | $default|map($query == .)|any
+      else
+          null
+      end
+; .sites
   | to_entries[]
     | "  * \(.key)" as $result
     | .value.aliases as $aliases
@@ -24,7 +33,7 @@ def any:
        else
            $result
        end) as $result
-    | if .key == $default or ($aliases and ($aliases|map(.==$default)|any)) then
+    | if .key|is_default or ($aliases and ($aliases|map(is_default)|any)) then
           $result + " (default)"
       else
           $result

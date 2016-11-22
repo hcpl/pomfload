@@ -6,7 +6,8 @@ exit_no_default() {
     exit 1
 }
 
-DEFAULT="$(jq -r .default sites.json)"
+JOIN_FUNC="def join(str): reduce .[1:][] as \$item (.[0]|tostring; . + str + (\$item|tostring))"
+DEFAULT="$(jq -r "${JOIN_FUNC}; .default|if type==\"array\" then join(\", \") else . end" sites.json)"
 SITES_TEXT="$(jq -r "$(cat sites_to_help_text.jq)" sites.json | sed 's/^/    /')"
 echo "${SITES_TEXT}" | grep -q ' (default)' || exit_no_default
 
@@ -21,10 +22,12 @@ pomfload
 
 .. code-block::
 
-    Usage: pomfload [-u|-f|-p] [-s SITE] FILE...
+    Usage: pomfload [-u|-f|-p] [-s SITE]... FILE...
 
     Options:
-      -s SITE           Specify the site name to upload (default: ${DEFAULT})
+      -s SITE           Specify the site name to upload, can be used
+                        multiple times to upload to multiple sites
+                        (default sites: ${DEFAULT})
       -u                Output URL
       -f                Output filename only
       -p                Output the same way as the server responses

@@ -6,7 +6,8 @@ exit_no_default() {
     exit 1
 }
 
-DEFAULT="$(jq -r .default sites.json)"
+JOIN_FUNC="def join(str): reduce .[1:][] as \$item (.[0]|tostring; . + str + (\$item|tostring))"
+DEFAULT="$(jq -r "${JOIN_FUNC}; .default|if type==\"array\" then join(\", \") else . end" sites.json)"
 SITES_TEXT="$(jq -r "$(cat sites_to_help_text.jq)" sites.json)"
 echo "${SITES_TEXT}" | grep -q ' (default)' || exit_no_default
 
@@ -17,10 +18,12 @@ cat <<EOF_
 
 print_help_exit() {
 cat <<EOF
-Usage: \$(basename "\$0") [-u|-f|-p] [-s SITE] FILE...
+Usage: \$(basename "\$0") [-u|-f|-p] [-s SITE]... FILE...
 
 Options:
-  -s SITE           Specify the site name to upload (default: ${DEFAULT})
+  -s SITE           Specify the site name to upload, can be used
+                    multiple times to upload to multiple sites
+                    (default sites: ${DEFAULT})
   -u                Output URL
   -f                Output filename only
   -p                Output the same way as the server responses
@@ -36,7 +39,7 @@ EOF
 }
 
 print_usage_exit() {
-    echo "Usage: $(basename "$0") [-u|-f|-p] [-s SITE] FILE..."
+    echo "Usage: $(basename "$0") [-u|-f|-p] [-s SITE]... FILE..."
     exit 1
 }
 
@@ -50,11 +53,23 @@ get_site_data() {
     echo "${_site_data_}"
 }
 
-get_field_value() {
-    _FIELDNAME_="$1"
-    _DEFAULT_VALUE_="$2"
+get_sites_data() {
+    _SITES_COUNT_="$1"
+    shift $(($# - _SITES_COUNT_))
 
-    _field_value_="$(echo "${SITE_DATA}" | jq -r ."${_FIELDNAME_}")"
+    for site in "$@"; do
+        _sites_data_="$(printf -- '%s\n%s' "${_sites_data_}" "$(get_site_data "${site}")")"
+    done
+
+    echo "${_sites_data_}"
+}
+
+get_field_value() {
+    _SITE_DATA_="$1"
+    _FIELDNAME_="$2"
+    _DEFAULT_VALUE_="$3"
+
+    _field_value_="$(echo "${_SITE_DATA_}" | jq -r ."${_FIELDNAME_}")"
     ([ -n "${_DEFAULT_VALUE_}" ] && [ "${_field_value_}" = null ]) && _field_value_="${_DEFAULT_VALUE_}"
 
     echo "${_field_value_}"
@@ -71,8 +86,9 @@ EOF
 )
 
 
-DEFAULT_SITE="$(echo "${SITES_JSON}" | jq -r '.default')"
-SITE="${DEFAULT_SITE}"
+# Save default sites names in newline-separated jq strings, which preserve whitespace
+DEFAULT_SITES="$(echo "${SITES_JSON}" | jq -c '.default|if type=="array" then .[] else . end')"
+SITES_COUNT=0
 OUTPUT_TYPE="url"
 
 while getopts ':hs:ufp' x; do
@@ -81,16 +97,24 @@ while getopts ':hs:ufp' x; do
             print_help_exit
             ;;
         s)
-            SITE="${OPTARG}"
+            SITES_COUNT=$((SITES_COUNT+1))
+            set -- "$@" "${OPTARG}"
+            # dash-only (bash and posh can work properly without this workaround):
+            # dash restarts (sets OPTIND to 1 and parses "$@" from the beginning) getopts if
+            # "$@" is changed before the while loop finishes a step, effectively producing
+            # an infinite loop;
+            # shifting forces subsequent getopts calls to skip already handled parameters
+            shift $((OPTIND-1))    # Parse from the beginning of the *shifted* array
+            OPTIND=1    # As you remember, bash and posh do not reset OPTIND automatically
             ;;
         u)
-            OUTPUT_TYPE="url"
+            OUTPUT_TYPE='url'
             ;;
         f)
-            OUTPUT_TYPE="filename"
+            OUTPUT_TYPE='filename'
             ;;
         p)
-            OUTPUT_TYPE="preserve"
+            OUTPUT_TYPE='preserve'
             ;;
         \?)
             echo -- "Invalid option: -${OPTARG}" >&2
@@ -109,37 +133,70 @@ if [ $# -lt 1 ]; then
 fi
 
 
-SITE_DATA="$(get_site_data "${SITE}")"
+[ "$SITES_COUNT" -eq 0 ] && while read -r line; do
+    SITES_COUNT=$((SITES_COUNT+1))
+    set -- "$@" "$(echo "${line}" | jq -r .)"
+# Avoid subshelling to be able to set variable
+done <<EOF
+    ${DEFAULT_SITES}
+EOF
 
-UPLOAD_URL="$(get_field_value upload)"
-DOWNLOAD_URL="$(get_field_value download)"
-FILE_FORM_NAME="$(get_field_value file_form_name 'files[]')"
-MULTIPLE_FILES="$(get_field_value multiple_files 'true')"
-RESPONSE_TEMPLATE="$(get_field_value response "\$json:files[].url")"
-case "${RESPONSE_TEMPLATE}" in
-    "\$url")       HANDLE_RESPONSE='(cat; echo) | head -n 1' ;;  # Checking for eol would make code ugly
-    "\$json:"*)    HANDLE_RESPONSE="jq -r $(echo "${RESPONSE_TEMPLATE}" | sed "s/^\$json:/./")" ;;
-    *)             echo "Wrong response template value: \"${RESPONSE_TEMPLATE}\"" >&2; exit 1 ;;
-esac
+SITES_DATA="$(get_sites_data "${SITES_COUNT}" "$@")"
+TO_SHIFT=$#
+for arg; do
+    [ $# -eq $((TO_SHIFT + (TO_SHIFT - SITES_COUNT))) ] && break
+    set -- "$@" "${arg}"
+done
+shift $((TO_SHIFT))
 
-ADDITIONAL_FORM_HEADERS="$(echo "${SITE_DATA}" \
-    | jq -r 'select(.headers)|.headers|to_entries[]|"\(.key)=\(.value)"')"
+build_response_handler() {
+    _SITE_DATA_="$1"
+
+    _RESPONSE_TEMPLATE_="$(get_field_value "${_SITE_DATA_}" response "\$json:files[].url")"
+    case "${_RESPONSE_TEMPLATE_}" in
+        "\$url")       _HANDLE_RESPONSE_='(cat; echo) | head -n 1' ;;  # Checking for eol would make code ugly
+        "\$json:"*)    _HANDLE_RESPONSE_="jq -r $(echo "${_RESPONSE_TEMPLATE_}" | sed "s/^\$json:/./")" ;;
+        *)             echo "Wrong response template value: \"${_RESPONSE_TEMPLATE_}\"" >&2; exit 1 ;;
+    esac
+
+    echo "${_HANDLE_RESPONSE_}"
+}
+
+build_form_headers() {
+    _SITE_DATA_="$1"
+    shift 1
+
+    _FILE_FORM_NAME_="$(get_field_value "${_SITE_DATA_}" file_form_name 'files[]')"
+    _ADDITIONAL_FORM_HEADERS_="$(echo "${_SITE_DATA_}" \
+        | jq -r 'select(.headers)|.headers|to_entries[]|"\(.key)=\(.value)"')"
+
+    # shellcheck disable=SC2039
+    _FORM_HEADERS_="$(printf -- "-F '${_FILE_FORM_NAME_}=@%s' " "$@" | head -c -1)"
+    # shellcheck disable=SC2039
+    [ -n "${_ADDITIONAL_FORM_HEADERS_}" ] && \
+        _FORM_HEADERS_="${_FORM_HEADERS_} \
+            $(printf -- "-F '%s' " "${_ADDITIONAL_FORM_HEADERS_}" | head -c -1)"
+
+    echo "${_FORM_HEADERS_}"
+}
 
 upload_print() {
-    # shellcheck disable=SC2039
-    _FORM_HEADERS_="$(printf -- "-F '${FILE_FORM_NAME}=@%s' " "$@" | head -c -1)"
-    # shellcheck disable=SC2039
-    [ -n "${ADDITIONAL_FORM_HEADERS}" ] && \
-        _FORM_HEADERS_="${_FORM_HEADERS_} \
-            $(printf -- "-F '%s' " "${ADDITIONAL_FORM_HEADERS}" | head -c -1)"
+    _SITE_DATA_="$1"
+    shift 1
+
+    _UPLOAD_URL_="$(get_field_value "${_SITE_DATA_}" upload)"
+    _DOWNLOAD_URL_="$(get_field_value "${_SITE_DATA_}" download)"
+
+    _HANDLE_RESPONSE_="$(build_response_handler "${_SITE_DATA_}")"
+    _FORM_HEADERS_="$(build_form_headers "${_SITE_DATA_}" "$@")"
 
     # Uses single quotes inside ${_FORM_HEADERS_} to support filenames containing spaces and
-    # a subshell construct (cmd; cmd) in ${HANDLE_RESPONSE}, so we have to eval it
-    _OUTPUT_="$(eval "curl -fsSL ${_FORM_HEADERS_} '${UPLOAD_URL}' | ${HANDLE_RESPONSE}")"
+    # a subshell construct (cmd; cmd) in ${_HANDLE_RESPONSE_}, so we have to eval it
+    _OUTPUT_="$(eval "curl -fsSL ${_FORM_HEADERS_} '${_UPLOAD_URL_}' | ${_HANDLE_RESPONSE_}")"
     echo "${_OUTPUT_}" | while read -r line; do
         case "${OUTPUT_TYPE}" in
             url)
-                echo "${DOWNLOAD_URL}" | sed "s|\$result|${line}|"
+                echo "${_DOWNLOAD_URL_}" | sed "s|\$result|${line}|"
                 ;;
             filename)
                 # Filename must be the last entry in any given URL that points to a file
@@ -152,11 +209,15 @@ upload_print() {
     done
 }
 
-if [ "${MULTIPLE_FILES}" = true ]; then
-    upload_print "$@"
-else
-    for filename in "$@"; do
-        upload_print "${filename}"
-    done
-fi
+echo "${SITES_DATA}" | jq -c . | while read -r line; do
+    MULTIPLE_FILES="$(get_field_value "${line}" multiple_files 'true')"
+
+    if [ "${MULTIPLE_FILES}" = true ]; then
+        upload_print "${line}" "$@"
+    else
+        for filename in "$@"; do
+            upload_print "${line}" "${filename}"
+        done
+    fi
+done
 EOF_
