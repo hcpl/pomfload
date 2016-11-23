@@ -7,12 +7,14 @@ pomfload
 
 .. code-block::
 
-    Usage: pomfload [-u|-f|-p] [-s SITE]... FILE...
+    Usage: pomfload [-u|-f|-p] [-t|-S SUFFIX] [-s SITE]... FILE...
 
     Options:
       -s SITE           Specify the site name to upload, can be used
                         multiple times to upload to multiple sites
                         (default sites: comfy.moe)
+      -S SUFFIX         Append SUFFIX to filenames before upload
+      -t                Upload as text files (equivalent to -S txt)
       -u                Output URL
       -f                Output filename only
       -p                Output the same way as the server responses
