@@ -6,14 +6,18 @@ cat <<EOF
 Usage: $(basename "$0") [-u|-f|-p] [-t|-S SUFFIX] [-s SITE]... FILE...
 
 Options:
+  -h                Show this help message and exit
+
   -s SITE           Specify the site name to upload, can be used
                     multiple times to upload to multiple sites
                     (default sites: comfy.moe)
   -S SUFFIX         Append SUFFIX to filenames before upload
   -t                Upload as text files (equivalent to -S txt)
+
   -u                Output URL
   -f                Output filename only
   -p                Output the same way as the server responses
+
   -v                Increase verbosity, can be specified multiple times
   -q                Decrease verbosity, can be specified multiple times
 
