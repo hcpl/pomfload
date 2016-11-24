@@ -29,6 +29,8 @@ Options:
   -u                Output URL
   -f                Output filename only
   -p                Output the same way as the server responses
+  -v                Increase verbosity, can be specified multiple times
+  -q                Decrease verbosity, can be specified multiple times
 
 Supported sites:
 EOF_
@@ -44,6 +46,21 @@ print_usage_exit() {
     echo "Usage: $(basename "$0") [-u|-f|-p] [-t|-S SUFFIX] [-s SITE]... FILE..."
     exit 1
 }
+
+print_message() {
+    _MSG_LEVEL_="$1"
+    _FORMAT_="$2"
+    shift 2
+
+    # shellcheck disable=SC2059
+    [ "${_MSG_LEVEL_}" -le "${VERBOSITY}" ] && printf "${_FORMAT_}\n" "$@"
+}
+
+alias error='print_message 1'
+alias warning='print_message 2'
+alias info='print_message 3'
+alias debug='print_message 4'
+
 
 get_site_data() {
     _SITE_="$1"
@@ -92,11 +109,18 @@ EOF
 DEFAULT_SITES="$(echo "${SITES_JSON}" | jq -c '.default|if type=="array" then .[] else . end')"
 SITES_COUNT=0
 OUTPUT_TYPE='url'
+VERBOSITY=2
 
-while getopts ':hs:tS:ufp' x; do
+while getopts ':hvqs:tS:ufp' x; do
     case $x in
         h)
             print_help_exit
+            ;;
+        v)
+            VERBOSITY=$((VERBOSITY+1))
+            ;;
+        q)
+            VERBOSITY=$((VERBOSITY-1))
             ;;
         s)
             SITES_COUNT=$((SITES_COUNT+1))
@@ -240,11 +264,16 @@ upload_print() {
 
 echo "${SITES_DATA}" | jq -c . | while read -r line; do
     MULTIPLE_FILES="$(get_field_value "${line}" multiple_files 'true')"
+    info 'Files:'
+    info '    %s' "$@"
 
     if [ "${MULTIPLE_FILES}" = true ]; then
+        info 'Multiple files uploading is supported'
         upload_print "${line}" "$@"
     else
+        info 'Only single file uploading is supported'
         for filename in "$@"; do
+            info "Uploading \"%s\" ..." "${filename}"
             upload_print "${line}" "${filename}"
         done
     fi
