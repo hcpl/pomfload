@@ -245,8 +245,12 @@ build_form_headers() {
     _FORM_HEADERS_="$(printf -- "-F '${_FILE_FORM_NAME_}=@%s' " "$@" | head -c -1)"
     # shellcheck disable=SC2039
     [ -n "${_ADDITIONAL_FORM_HEADERS_}" ] && \
-        _FORM_HEADERS_="${_FORM_HEADERS_} \
-            $(printf -- "-F '%s' " "${_ADDITIONAL_FORM_HEADERS_}" | head -c -1)"
+        while read -r line; do
+            _FORM_HEADERS_="${_FORM_HEADERS_} \
+                $(printf -- "-F '%s' " "${line}" | head -c -1)"
+        done <<EOF
+            ${_ADDITIONAL_FORM_HEADERS_}
+EOF
 
     echo "${_FORM_HEADERS_}"
 }
