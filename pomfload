@@ -26,12 +26,18 @@ Supported sites:
   * catbox.moe (alias: catbox)
   * comfy.moe (alias: comfy)
   * desu.sh (alias: desu)
+  * fuwa.se (alias: fuwa)
+  * g.zxq.co (aliases: gzxq, zxq)
   * glop.me (alias: glop)
   * jii.moe (alias: jii)
   * maro.xyz (alias: maro)
   * mixtape.moe (alias: mixtape)
+  * p.fuwafuwa.moe (alias: fuwafuwa)
   * pomf.cat
+  * pomf.pyonpyon.moe (alias: pyonpyon)
+  * pomfe.co (alias: pomfe)
   * uguu.se
+  * up.asis.io (aliases: upasis, asis)
   * vidga.me (alias: vidga)
   * yiff.moe (alias: yiff) (default)
 EOF
@@ -121,6 +127,16 @@ SITES_JSON=$(cat <<'EOF'
             "upload": "https://desu.sh/upload.php",
             "download": "https://desu.sh/$result"
         },
+        "fuwa.se": {
+            "aliases": ["fuwa"],
+            "upload": "https://fuwa.se/api/upload",
+            "download": "$result"
+        },
+        "g.zxq.co": {
+            "aliases": ["gzxq", "zxq"],
+            "upload": "https:/g.zxq.co/upload.php",
+            "download": "https://y.zxq.co/$result"
+        },
         "glop.me": {
             "aliases": ["glop"],
             "upload": "http://glop.me/upload.php",
@@ -147,9 +163,24 @@ SITES_JSON=$(cat <<'EOF'
             "upload": "https://mixtape.moe/upload.php",
             "download": "$result"
         },
+        "p.fuwafuwa.moe": {
+            "aliases": ["fuwafuwa"],
+            "upload": "https://p.fuwafuwa.moe/upload.php",
+            "download": "$result"
+        },
         "pomf.cat": {
             "upload": "https://pomf.cat/upload.php",
             "download": "https://a.pomf.cat/$result"
+        },
+        "pomf.pyonpyon.moe": {
+            "aliases": ["pyonpyon"],
+            "upload": "https://pomf.pyonpyon.moe/upload.php",
+            "download": "$result"
+        },
+        "pomfe.co": {
+            "aliases": ["pomfe"],
+            "upload": "https://pomfe.co/upload.php",
+            "download": "https://a.pomfe.co/$result"
         },
         "uguu.se": {
             "file_form_name": "file",
@@ -160,6 +191,11 @@ SITES_JSON=$(cat <<'EOF'
             "upload": "https://uguu.se/api.php?d=upload-tool",
             "download": "$result",
             "response": "$url"
+        },
+        "up.asis.io": {
+            "aliases": ["upasis", "asis"],
+            "upload": "https://up.asis.io/upload.php",
+            "download": "https://dl.asis.io/$result"
         },
         "vidga.me": {
             "aliases": ["vidga"],

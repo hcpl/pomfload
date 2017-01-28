@@ -30,12 +30,18 @@ pomfload
       * catbox.moe (alias: catbox)
       * comfy.moe (alias: comfy)
       * desu.sh (alias: desu)
+      * fuwa.se (alias: fuwa)
+      * g.zxq.co (aliases: gzxq, zxq)
       * glop.me (alias: glop)
       * jii.moe (alias: jii)
       * maro.xyz (alias: maro)
       * mixtape.moe (alias: mixtape)
+      * p.fuwafuwa.moe (alias: fuwafuwa)
       * pomf.cat
+      * pomf.pyonpyon.moe (alias: pyonpyon)
+      * pomfe.co (alias: pomfe)
       * uguu.se
+      * up.asis.io (aliases: upasis, asis)
       * vidga.me (alias: vidga)
       * yiff.moe (alias: yiff) (default)
 
