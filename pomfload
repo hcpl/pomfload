@@ -42,7 +42,7 @@ print_message() {
     shift 2
 
     # shellcheck disable=SC2059
-    [ "${_MSG_LEVEL_}" -le "${VERBOSITY}" ] && printf "${_FORMAT_}\n" "$@"
+    [ "${_MSG_LEVEL_}" -le "${VERBOSITY}" ] && printf "${_FORMAT_}\n" "$@" >&2
 }
 
 alias error='print_message 1'
@@ -261,9 +261,21 @@ upload_print() {
     _HANDLE_RESPONSE_="$(build_response_handler "${_SITE_DATA_}")"
     _FORM_HEADERS_="$(build_form_headers "${_SITE_DATA_}" "$@")"
 
-    # Uses single quotes inside ${_FORM_HEADERS_} to support filenames containing spaces and
-    # a subshell construct (cmd; cmd) in ${_HANDLE_RESPONSE_}, so we have to eval it
-    _OUTPUT_="$(eval "curl -fsSL ${_FORM_HEADERS_} '${_UPLOAD_URL_}' | ${_HANDLE_RESPONSE_}")"
+    # Single quotes inside ${_FORM_HEADERS_} to support filenames containing spaces and
+    # a subshell construct (cmd; cmd) in ${_HANDLE_RESPONSE_} used here, so we have to eval
+
+    # Let stderr through to print curl error messages
+    _RESPONSE_="$(eval "curl -fsSL ${_FORM_HEADERS_} -w '\n%{http_code}' '${_UPLOAD_URL_}'")"
+    _CURL_CODE_=$?
+    if [ "$(echo "${_RESPONSE_}" | tail -n 1)" -ne 200 ]; then
+        info "curl finished with ${_CURL_CODE_} exit code"
+        info "Response:\n${_RESPONSE_}"
+        exit $((_CURL_CODE_))
+    else
+        info "Response:\n${_RESPONSE_}"
+    fi
+
+    _OUTPUT_="$(echo "${_RESPONSE_}" | head -n -1 | eval "${_HANDLE_RESPONSE_}")"
     echo "${_OUTPUT_}" | while read -r line; do
         case "${OUTPUT_TYPE}" in
             url)
