@@ -11,7 +11,7 @@ Options:
   -s SITE           Specify the site name to upload, can be used
                     multiple times to upload to multiple sites
                     (default sites: yiff.moe)
-  -S SUFFIX         Append SUFFIX to filenames before upload
+  -S SUFFIX         Upload as files with the specified SUFFIX
   -t                Upload as text files (equivalent to -S txt)
 
   -u                Output URL
