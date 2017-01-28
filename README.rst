@@ -14,7 +14,7 @@ pomfload
 
       -s SITE           Specify the site name to upload, can be used
                         multiple times to upload to multiple sites
-                        (default sites: comfy.moe)
+                        (default sites: yiff.moe)
       -S SUFFIX         Append SUFFIX to filenames before upload
       -t                Upload as text files (equivalent to -S txt)
 
@@ -28,13 +28,13 @@ pomfload
     Supported sites:
       * aww.moe (alias: aww)
       * catbox.moe (alias: catbox)
-      * comfy.moe (alias: comfy) (default)
+      * comfy.moe (alias: comfy)
       * desu.sh (alias: desu)
       * jii.moe (alias: jii)
       * mixtape.moe (alias: mixtape)
       * pomf.cat
       * uguu.se
-      * yiff.moe (alias: yiff)
+      * yiff.moe (alias: yiff) (default)
 
 
 Requirements
