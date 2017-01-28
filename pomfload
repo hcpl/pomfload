@@ -209,8 +209,8 @@ if [ -n "${SUFFIX}" ]; then
 
     TO_SHIFT=$#
     for filename in "$@"; do
-        new_filename="${filename}.${SUFFIX}"
-        ln -s "${PWD}/${filename}" "${TEMPDIR}/${new_filename}"
+        new_filename="$(basename "${filename}").${SUFFIX}"
+        ln -s "${filename}" "${TEMPDIR}/${new_filename}"
         set -- "$@" "${new_filename}"
     done
     shift $((TO_SHIFT))
