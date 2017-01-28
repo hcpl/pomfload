@@ -27,6 +27,11 @@
             "upload": "https://desu.sh/upload.php",
             "download": "https://desu.sh/$result"
         },
+        "glop.me": {
+            "aliases": ["glop"],
+            "upload": "http://glop.me/upload.php",
+            "download": "http://gateway.glop.me/ipfs/$result"
+        },
         "jii.moe": {
             "aliases": ["jii"],
             "file_form_name": "file",
@@ -34,6 +39,14 @@
             "upload": "https://jii.moe/api/v1/upload",
             "download": "$result",
             "response": "$json:url"
+        },
+        "maro.xyz": {
+            "aliases": ["maro"],
+            "file_form_name": "file",
+            "multiple_files": false,
+            "upload": "https://maro.xyz/api/upload",
+            "download": "$result",
+            "response": "$json:short_url"
         },
         "mixtape.moe": {
             "aliases": ["mixtape"],
@@ -53,6 +66,11 @@
             "upload": "https://uguu.se/api.php?d=upload-tool",
             "download": "$result",
             "response": "$url"
+        },
+        "vidga.me": {
+            "aliases": ["vidga"],
+            "upload": "https://vidga.me/upload.php",
+            "download": "$result"
         },
         "yiff.moe": {
             "aliases": ["yiff"],

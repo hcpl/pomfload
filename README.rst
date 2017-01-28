@@ -30,10 +30,13 @@ pomfload
       * catbox.moe (alias: catbox)
       * comfy.moe (alias: comfy)
       * desu.sh (alias: desu)
+      * glop.me (alias: glop)
       * jii.moe (alias: jii)
+      * maro.xyz (alias: maro)
       * mixtape.moe (alias: mixtape)
       * pomf.cat
       * uguu.se
+      * vidga.me (alias: vidga)
       * yiff.moe (alias: yiff) (default)
 
 
