@@ -30,7 +30,11 @@ pomfload
       * catbox.moe (alias: catbox)
       * comfy.moe (alias: comfy) (default)
       * desu.sh (alias: desu)
+      * jii.moe (alias: jii)
+      * mixtape.moe (alias: mixtape)
       * pomf.cat
+      * uguu.se
+      * yiff.moe (alias: yiff)
 
 
 Requirements

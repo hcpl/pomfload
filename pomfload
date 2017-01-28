@@ -26,7 +26,11 @@ Supported sites:
   * catbox.moe (alias: catbox)
   * comfy.moe (alias: comfy) (default)
   * desu.sh (alias: desu)
+  * jii.moe (alias: jii)
+  * mixtape.moe (alias: mixtape)
   * pomf.cat
+  * uguu.se
+  * yiff.moe (alias: yiff)
 EOF
     exit 0
 }
@@ -114,9 +118,37 @@ SITES_JSON=$(cat <<'EOF'
             "upload": "https://desu.sh/upload.php",
             "download": "https://desu.sh/$result"
         },
+        "jii.moe": {
+            "aliases": ["jii"],
+            "file_form_name": "file",
+            "multiple_files": false,
+            "upload": "https://jii.moe/api/v1/upload",
+            "download": "$result",
+            "response": "$json:url"
+        },
+        "mixtape.moe": {
+            "aliases": ["mixtape"],
+            "upload": "https://mixtape.moe/upload.php",
+            "download": "$result"
+        },
         "pomf.cat": {
             "upload": "https://pomf.cat/upload.php",
             "download": "https://a.pomf.cat/$result"
+        },
+        "uguu.se": {
+            "file_form_name": "file",
+            "multiple_files": false,
+            "headers": {
+                "randomname": "whatever"
+            },
+            "upload": "https://uguu.se/api.php?d=upload-tool",
+            "download": "$result",
+            "response": "$url"
+        },
+        "yiff.moe": {
+            "aliases": ["yiff"],
+            "upload": "https://yiff.moe/upload.php",
+            "download": "$result"
         }
     }
 }
